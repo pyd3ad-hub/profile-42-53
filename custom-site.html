@@ -3,852 +3,902 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>42-53 | Profile</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <title>Lua Code Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0a0a0a;
-            min-height: 100vh;
-            color: #fff;
-            overflow-x: hidden;
-        }
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBeO9xz5edZLngDE2G98WyJnxw_e9MKRTQ",
+            authDomain: "shub-a0d91.firebaseapp.com",
+            projectId: "shub-a0d91",
+            storageBucket: "shub-a0d91.firebasestorage.app",
+            messagingSenderId: "620094592442",
+            appId: "1:620094592442:web:69e9854f0c3a1983a37983"
+        };
         
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
         
-        /* Profile Card - Main */
-        .profile-card {
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 1.5rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
+        // Make Firebase available globally
+        window.firebaseDb = db;
+        window.firebaseDoc = doc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseOnSnapshot = onSnapshot;
         
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
+        console.log('Firebase initialized');
         
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0;
-        }
-        
-        .profile-info {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .profile-username {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-            background: linear-gradient(45deg, #fff, #a0a0a0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .profile-bio {
-            font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 0.4rem;
-        }
-        
-        .profile-location {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.85rem;
-            margin-top: 0.4rem;
-        }
-        
-        .profile-stats {
-            display: flex;
-            gap: 1.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85rem;
-        }
-        
-        .stat-item .icon {
-            width: 18px;
-            height: 18px;
-        }
-        
-        /* Account Overview Cards */
-        .overview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        
-        .overview-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 1.2rem;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .overview-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3;
-        }
-        
-        .overview-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .overview-card-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .overview-card-icon {
-            font-size: 1.5rem;
-            opacity: 0.8;
-        }
-        
-        .overview-card-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .overview-card-description {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Account Statistics */
-        .stats-section {
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .stats-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-        
-        .progress-bar-container {
-            margin-bottom: 1.5rem;
-        }
-        
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-        
-        .alert-box {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            margin: 1.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .alert-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-        
-        .alert-text {
-            flex: 1;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
-        }
-        
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin: 1.5rem 0;
-        }
-        
-        .action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .action-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(5px);
-        }
-        
-        .action-btn.completed {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-        
-        .action-btn-icon {
-            font-size: 1.2rem;
-        }
-        
-        /* Manage Account Section */
-        .manage-section {
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        .section-description {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* Connections Section */
-        .connections-section {
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .connection-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-        
-        .connection-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .connection-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: #5865F2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        
-        .connection-name {
-            font-weight: 500;
-        }
-        
-        .connection-status {
-            padding: 0.5rem 1rem;
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .disconnect-btn {
-            padding: 0.5rem;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 6px;
-            color: #ef4444;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .disconnect-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-        
-        /* Custom Content Area */
-        #custom-content {
-            margin-top: 2rem;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .profile-card {
-                padding: 1.5rem;
-            }
-            
-            .profile-username {
-                font-size: 2rem;
-            }
-            
-            .overview-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Loading State */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        /* Social Links */
-        .social-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            text-decoration: none;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-        
-        .social-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .social-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        
-        .social-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .social-label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 0.2rem;
-        }
-        
-        .social-text {
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-    </style>
+        // Trigger cloud sync initialization after Firebase is ready
+        window.dispatchEvent(new Event('firebaseReady'));
+    </script>
 </head>
 <body>
-    <div class="container">
-        <!-- Profile Card -->
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="profile-avatar">42</div>
-                <div class="profile-info">
-                    <div class="profile-username" id="profile-username">4253</div>
-                    <div class="profile-bio" id="profile-bio">Python/Lua Developer</div>
-                    <div class="profile-location">
-                        <span>📍</span>
-                        <span id="profile-location">nuh uh</span>
+    <!-- Login Modal (shows before main content) -->
+    <div id="login-modal" class="modal login-modal">
+        <div class="modal-content login-modal-content">
+            <div class="login-container">
+                <div class="login-header">
+                    <div class="sidebar-logo">
+                        <span class="logo-icon">𓆩🜲𓆪</span>
+                        <h2 class="sidebar-title">4253</h2>
                     </div>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <span class="icon">👁️</span>
-                            <span id="profile-views">0</span> views
-                        </div>
-                        <div class="stat-item">
-                            <span class="icon">👤</span>
-                            <span id="profile-uid">1</span> UID
-                        </div>
+                    <h2 class="login-title">Enter Your Security Details</h2>
+                </div>
+                <form class="login-form" onsubmit="handleLogin(event)">
+                    <div class="login-form-group">
+                        <label for="login-discord-id" class="login-label">
+                            <span class="label-icon">💬</span>
+                            Discord ID
+                        </label>
+                        <input type="text" id="login-discord-id" class="login-input" placeholder="Enter your Discord ID" required>
                     </div>
-                </div>
+                    <div class="login-form-group">
+                        <label for="login-key" class="login-label">
+                            <span class="label-icon">🔑</span>
+                            Security Key
+                        </label>
+                        <input type="password" id="login-key" class="login-input" placeholder="Enter your security key" required>
+                    </div>
+                    <button type="submit" class="btn btn-blue login-submit-btn">LOGIN</button>
+                    <div id="login-error" class="login-error" style="display: none;"></div>
+                </form>
             </div>
         </div>
-        
-        <!-- Account Overview -->
-        <div class="overview-grid">
-            <div class="overview-card">
-                <div class="overview-card-header">
-                    <div class="overview-card-title">Username</div>
-                    <div class="overview-card-icon">✏️</div>
-                </div>
-                            <div class="overview-card-value" id="overview-username-display">4253</div>
-                            <div class="overview-card-description">Change available now</div>
-            </div>
-            
-            <div class="overview-card">
-                <div class="overview-card-header">
-                    <div class="overview-card-title">Alias</div>
-                    <div class="overview-card-icon">👤</div>
-                </div>
-                <div class="overview-card-value">Unavailable</div>
-                <div class="overview-card-description">Premium Only</div>
-            </div>
-            
-            <div class="overview-card">
-                <div class="overview-card-header">
-                    <div class="overview-card-title">UID</div>
-                    <div class="overview-card-icon">#</div>
-                </div>
-                    <div class="overview-card-value" id="overview-uid">1</div>
-                    <div class="overview-card-description">Among the first 1%</div>
-            </div>
-            
-            <div class="overview-card">
-                <div class="overview-card-header">
-                    <div class="overview-card-title">Profile Views</div>
-                    <div class="overview-card-icon">👁️</div>
-                </div>
-                    <div class="overview-card-value" id="overview-views">0</div>
-                    <div class="overview-card-description" id="overview-views-desc">No views yet</div>
-            </div>
-        </div>
-        
-        <!-- Account Statistics -->
-        <div class="stats-section">
-            <div class="stats-title">Account Statistics</div>
-            
-            <div class="progress-bar-container">
-                <div class="progress-label">
-                    <span>Profile Completion</span>
-                    <span>60%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 60%"></div>
-                </div>
-            </div>
-            
-            <div class="alert-box">
-                <div class="alert-icon">⚠️</div>
-                <div class="alert-text">Your profile isn't complete yet! Complete your profile to make it more discoverable and appealing.</div>
-            </div>
-            
-            <div class="action-buttons">
-                <a href="#" class="action-btn">
-                    <span>Upload An Avatar</span>
-                    <span class="action-btn-icon">→</span>
-                </a>
-                <a href="#" class="action-btn completed">
-                    <span>Add A Description</span>
-                    <span class="action-btn-icon">✓</span>
-                </a>
-                <a href="#" class="action-btn completed">
-                    <span>Link Discord Account</span>
-                    <span class="action-btn-icon">✓</span>
-                </a>
-                <a href="#" class="action-btn completed">
-                    <span>Add Socials</span>
-                    <span class="action-btn-icon">✓</span>
-                </a>
-                <a href="#" class="action-btn">
-                    <span>Enable 2FA</span>
-                    <span class="action-btn-icon">→</span>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Manage Account -->
-        <div class="manage-section">
-            <div class="section-title">Manage your account</div>
-            <div class="section-description">Change your email, username and more.</div>
-            <div class="button-group">
-                <button class="btn">✏️ Change Username</button>
-                <button class="btn">💬 Change Display Name</button>
-                <button class="btn btn-primary">💎 Want more? Unlock with Premium</button>
-                <button class="btn">⚙️ Account Settings</button>
-            </div>
-        </div>
-        
-        <!-- Connections -->
-        <div class="connections-section">
-            <div class="section-title">Connections</div>
-            <div class="section-description">Link your Discord account to 42-53</div>
-            <div class="connection-item">
-                <div class="connection-info">
-                    <div class="connection-logo">D</div>
-                    <div class="connection-name">Discord Connected</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="connection-status">Connected</span>
-                    <button class="disconnect-btn">✕</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Social Links Section -->
-        <div class="stats-section" id="social-links-section" style="display: none;">
-            <div class="stats-title">Social Links</div>
-            <div id="social-links-container" style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                <!-- Social links will be loaded here -->
-            </div>
-        </div>
-        
-        <!-- Custom Content Area (loaded from Firebase) -->
-        <div id="custom-content" class="loading">Loading custom content...</div>
     </div>
+    <!-- Shooting Stars Background -->
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
     
-    <!-- Firebase SDK with fallback -->
-    <script type="module">
-        // Try to load Firebase with error handling
-        let firebaseLoaded = false;
-        
-        // Track view
-        async function trackView(db, doc, getDoc, setDoc) {
-            try {
-                const viewRef = doc(db, 'config', 'profileViews');
-                const viewSnap = await getDoc(viewRef);
-                
-                const now = new Date();
-                const today = now.toISOString().split('T')[0];
-                
-                let viewsData = viewSnap.exists() ? viewSnap.data() : { total: 0, today: 0, lastView: null, history: {} };
-                
-                // Update totals
-                viewsData.total = (viewsData.total || 0) + 1;
-                viewsData.today = (viewsData.history && viewsData.history[today]) ? viewsData.history[today] + 1 : 1;
-                viewsData.lastView = now.toISOString();
-                if (!viewsData.history) viewsData.history = {};
-                viewsData.history[today] = viewsData.today;
-                
-                await setDoc(viewRef, viewsData);
-                
-                // Update UI
-                updateViewCounts(viewsData);
-            } catch (error) {
-                console.error('Error tracking view:', error);
-            }
-        }
-        
-        // Update view counts in UI
-        function updateViewCounts(viewsData) {
-            const totalViews = viewsData.total || 0;
-            const todayViews = viewsData.today || 0;
-            
-            // Update all view displays
-            const viewElements = document.querySelectorAll('#profile-views, #overview-views');
-            viewElements.forEach(el => {
-                if (el) el.textContent = totalViews;
-            });
-            
-            const overviewDesc = document.getElementById('overview-views-desc');
-            if (overviewDesc) {
-                if (todayViews > 0) {
-                    overviewDesc.textContent = `+${todayViews} views today`;
-                } else {
-                    overviewDesc.textContent = 'No views yet';
-                }
-            }
-        }
-        
-        // Load profile data
-        async function loadProfileData(db, doc, getDoc) {
-            try {
-                const profileRef = doc(db, 'config', 'profile');
-                const profileSnap = await getDoc(profileRef);
-                
-                if (profileSnap.exists()) {
-                    const data = profileSnap.data();
-                    
-                    // Update profile info
-                    if (data.username) {
-                        const usernameEl = document.getElementById('profile-username');
-                        const usernameDisplayEl = document.getElementById('overview-username-display');
-                        if (usernameEl) usernameEl.textContent = data.username;
-                        if (usernameDisplayEl) usernameDisplayEl.textContent = data.username;
-                    }
-                    if (data.bio) {
-                        const bioEl = document.getElementById('profile-bio');
-                        if (bioEl) bioEl.textContent = data.bio;
-                    }
-                    if (data.location) {
-                        const locationEl = document.getElementById('profile-location');
-                        if (locationEl) locationEl.textContent = data.location;
-                    }
-                    
-                    // Load social links
-                    if (data.socialLinks && Array.isArray(data.socialLinks) && data.socialLinks.length > 0) {
-                        loadSocialLinks(data.socialLinks);
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading profile data:', error);
-            }
-        }
-        
-        // Load social links
-        function loadSocialLinks(socialLinks) {
-            const container = document.getElementById('social-links-container');
-            const section = document.getElementById('social-links-section');
-            
-            if (!container || !section) return;
-            
-            if (socialLinks.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
-            
-            section.style.display = 'block';
-            container.innerHTML = '';
-            
-            socialLinks.forEach(link => {
-                const socialEl = document.createElement('a');
-                socialEl.href = link.url;
-                socialEl.target = '_blank';
-                socialEl.className = 'social-link';
-                
-                const icon = document.createElement('div');
-                icon.className = 'social-icon';
-                icon.style.background = link.iconColor || '#667eea';
-                icon.textContent = link.icon || '🔗';
-                
-                const info = document.createElement('div');
-                info.className = 'social-info';
-                
-                const label = document.createElement('div');
-                label.className = 'social-label';
-                label.textContent = link.label || '';
-                
-                const text = document.createElement('div');
-                text.className = 'social-text';
-                text.textContent = link.text || link.url;
-                
-                info.appendChild(label);
-                info.appendChild(text);
-                socialEl.appendChild(icon);
-                socialEl.appendChild(info);
-                container.appendChild(socialEl);
-            });
-        }
-        
-        // Load view counts
-        async function loadViewCounts(db, doc, getDoc) {
-            try {
-                const viewRef = doc(db, 'config', 'profileViews');
-                const viewSnap = await getDoc(viewRef);
-                
-                if (viewSnap.exists()) {
-                    const viewsData = viewSnap.data();
-                    updateViewCounts(viewsData);
-                }
-            } catch (error) {
-                console.error('Error loading view counts:', error);
-            }
-        }
-        
-        async function initFirebase() {
-            try {
-                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-                const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                
-                const firebaseConfig = {
-                    apiKey: "AIzaSyBeO9xz5edZLngDE2G98WyJnxw_e9MKRTQ",
-                    authDomain: "shub-a0d91.firebaseapp.com",
-                    projectId: "shub-a0d91",
-                    storageBucket: "shub-a0d91.firebasestorage.app",
-                    messagingSenderId: "620094592442",
-                    appId: "1:620094592442:web:69e9854f0c3a1983a37983"
-                };
-                
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-                
-                // Import setDoc for tracking
-                const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                
-                firebaseLoaded = true;
-                
-                // Track this view
-                await trackView(db, doc, getDoc, setDoc);
-                
-                // Load profile data and view counts
-                await Promise.all([
-                    loadProfileData(db, doc, getDoc),
-                    loadViewCounts(db, doc, getDoc),
-                    loadCustomContent(db, doc, getDoc)
-                ]);
-            } catch (error) {
-                console.error('Firebase initialization error:', error);
-                showError('Failed to initialize Firebase. Please refresh the page.');
-            }
-        }
-        
-        async function loadCustomContent(db, doc, getDoc) {
-            try {
-                const customContentEl = document.getElementById('custom-content');
-                
-                const docRef = doc(db, 'config', 'customSite');
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.html) {
-                        customContentEl.innerHTML = data.html;
-                        customContentEl.classList.remove('loading');
-                    } else {
-                        customContentEl.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">No custom content set. Edit from the dashboard to add content.</p>';
-                        customContentEl.classList.remove('loading');
-                    }
-                } else {
-                    customContentEl.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">No custom content set. Edit from the dashboard to add content.</p>';
-                    customContentEl.classList.remove('loading');
-                }
-            } catch (error) {
-                console.error('Error loading custom content:', error);
-                showError('Error loading content. Please try again later.');
-            }
-        }
-        
-        function showError(message) {
-            const customContentEl = document.getElementById('custom-content');
-            customContentEl.innerHTML = `<p style="text-align: center; color: rgba(255,255,255,0.5);">${message}</p>`;
-            customContentEl.classList.remove('loading');
-        }
-        
-        // Initialize Firebase on page load
-        initFirebase();
-    </script>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">☰</button>
+    <div class="mobile-overlay" onclick="closeMobileMenu()"></div>
     
-    <!-- Fallback for browsers that don't support ES modules -->
-    <script nomodule>
-        document.getElementById('custom-content').innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Please use a modern browser to view this page.</p>';
-    </script>
+    <div class="app-container">
+        <!-- Left Sidebar with Tabs -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span class="logo-icon">𓆩🜲𓆪</span>
+                    <h2 class="sidebar-title">4253</h2>
+                </div>
+                <button class="mobile-close-btn" onclick="closeMobileMenu()" aria-label="Close menu">✕</button>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="tab-button active" data-tab="dashboard" onclick="event.stopPropagation(); switchTab('dashboard', event); return false;">
+                    <span class="tab-icon">⊞</span>
+                    <span class="tab-label">Dashboard</span>
+                </button>
+                <button class="tab-button" data-tab="projects" onclick="event.stopPropagation(); switchTab('projects', event); return false;">
+                    <span class="tab-icon">📄</span>
+                    <span class="tab-label">Projects</span>
+                </button>
+                <button class="tab-button" data-tab="users" onclick="event.stopPropagation(); switchTab('users', event); return false;">
+                    <span class="tab-icon">👥</span>
+                    <span class="tab-label">Users</span>
+                </button>
+                <button class="tab-button" data-tab="discord" onclick="event.stopPropagation(); switchTab('discord', event); return false;">
+                    <span class="tab-icon">🤖</span>
+                    <span class="tab-label">Discord Bot</span>
+                </button>
+                <button class="tab-button" data-tab="custom-site" onclick="event.stopPropagation(); switchTab('custom-site', event); return false;">
+                    <span class="tab-icon">🌐</span>
+                    <span class="tab-label">Custom Site</span>
+                </button>
+            </nav>
+            <div class="sidebar-account">
+                <div class="account-label">ACCOUNT</div>
+                <button class="tab-button account-button" data-tab="profile" onclick="event.stopPropagation(); switchTab('profile', event); return false;">
+                    <span class="tab-icon">👤</span>
+                    <span class="tab-label">Profile</span>
+                </button>
+                <button class="tab-button account-button" onclick="handleLogout()">
+                    <span class="tab-label">Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="breadcrumb-nav">
+                <span class="breadcrumb-site">4253</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-tab" id="breadcrumb-tab">dashboard</span>
+            </div>
+            <div class="content-header">
+                <h1 id="content-title">Dashboard</h1>
+            </div>
+            
+            <!-- Dashboard Tab Content -->
+            <div id="dashboard-content" class="tab-content active">
+                <!-- Total Executions Card (Stretched) -->
+                <div class="dashboard-stat-card">
+                    <div class="stat-card stat-card-grey stat-card-full-width">
+                        <div class="stat-content">
+                            <div class="stat-label-top">Total Executions</div>
+                            <div class="stat-value">0/∞</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-green" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graph Section -->
+                <div class="dashboard-graph-section">
+                    <div class="graph-header">
+                        <h3 class="graph-title">Execution Statistics</h3>
+                        <div class="graph-filters">
+                            <button class="graph-filter-btn active" data-period="day">Day</button>
+                            <button class="graph-filter-btn" data-period="week">Week</button>
+                            <button class="graph-filter-btn" data-period="month">Month</button>
+                            <button class="graph-filter-btn" data-period="year">Year</button>
+                        </div>
+                    </div>
+                    <div class="graph-container">
+                        <div class="graph-placeholder">
+                            <svg class="graph-svg" viewBox="0 0 800 400" preserveAspectRatio="none">
+                                <!-- X-axis -->
+                                <line x1="50" y1="350" x2="750" y2="350" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                <!-- Y-axis -->
+                                <line x1="50" y1="50" x2="50" y2="350" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                <!-- Flat line at 0 -->
+                                <line x1="50" y1="350" x2="750" y2="350" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-dasharray="5,5"/>
+                                <!-- Y-axis label -->
+                                <text x="30" y="200" fill="rgba(255,255,255,0.5)" font-size="12" text-anchor="middle" transform="rotate(-90 30 200)">Executions</text>
+                                <!-- X-axis label -->
+                                <text x="400" y="380" fill="rgba(255,255,255,0.5)" font-size="12" text-anchor="middle">Time</text>
+                            </svg>
+                            <div class="graph-zero-label">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab Content -->
+            <div id="users-content" class="tab-content">
+                <!-- Stats Cards -->
+                <div class="stats-container">
+                    <div class="stat-card stat-card-green">
+                        <div class="stat-icon stat-icon-green">📄</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Scripts</div>
+                            <div class="stat-value-large">0</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-green" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-blue">
+                        <div class="stat-icon stat-icon-blue">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-value-large">0</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-blue" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-red">
+                        <div class="stat-icon stat-icon-red">🛡️</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Banned Users</div>
+                            <div class="stat-value-large">0</div>
+                            <div class="stat-description">There are 0 blacklisted IPs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project/User Management Section -->
+                <div class="project-section">
+                    <div class="project-header">
+                        <div class="project-title-group">
+                            <span class="project-icon">🔴</span>
+                            <div>
+                                <h2 class="project-title">4253s Lua Projects</h2>
+                            </div>
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn btn-blue btn-add-user" onclick="openAddUserModal()">+ ADD USER</button>
+                            <button class="btn btn-green btn-edit-users">EDIT USERS</button>
+                            <button class="btn btn-grey btn-icon">⚙️</button>
+                        </div>
+                    </div>
+
+                    <!-- Search and Pagination -->
+                    <div class="search-pagination-container">
+                        <div class="search-container">
+                            <input type="text" class="search-input" placeholder="Search users...">
+                            <button class="btn btn-grey btn-search">🔍 SEARCH</button>
+                        </div>
+                        <div class="pagination-info">
+                            <span>Showing users:</span>
+                            <div class="pagination-controls">
+                                <button class="pagination-btn">←</button>
+                                <span class="pagination-text">0-100</span>
+                                <button class="pagination-btn">→</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="table-container">
+                        <table class="scripts-table users-table">
+                            <thead>
+                                <tr>
+                                    <th>USER KEY</th>
+                                    <th>DISCORD ID</th>
+                                    <th>STATUS</th>
+                                    <th>NOTE</th>
+                                    <th>EXECUTIONS</th>
+                                    <th>HWID RESETS</th>
+                                    <th>DAYS</th>
+                                    <th>BAN REASON</th>
+                                    <th>AC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="9" class="empty-table-message">No users found. Click "+ ADD USER" to create a new user.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab Content -->
+            <div id="projects-content" class="tab-content">
+                <!-- Stats Cards -->
+                <div class="stats-container">
+                    <div class="stat-card stat-card-green">
+                        <div class="stat-icon stat-icon-green">📄</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Projects</div>
+                            <div class="stat-value">0/∞</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-green" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-grey">
+                        <div class="stat-content">
+                            <div class="stat-label-top">Total Scripts</div>
+                            <div class="stat-value">0/∞</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-green" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon stat-icon-purple">🔒</div>
+                        <div class="stat-content">
+                            <div class="stat-label-top">Monthly Obfuscations</div>
+                            <div class="stat-value">0/∞</div>
+                            <div class="stat-reset">* Resets in 30 days</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-purple" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Project Button -->
+                <div class="create-project-container">
+                    <button class="btn btn-blue btn-create-project" onclick="openCreateProjectModal()">+ CREATE PROJECT</button>
+                </div>
+            </div>
+
+            <!-- Discord Bot Tab Content -->
+            <div id="discord-content" class="tab-content">
+                <!-- Stats Cards -->
+                <div class="stats-container">
+                    <div class="stat-card stat-card-green">
+                        <div class="stat-icon stat-icon-green">📁</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Bot Files</div>
+                            <div class="stat-value-large" id="discord-files-count">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-blue">
+                        <div class="stat-icon stat-icon-blue">🐍</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Python Files</div>
+                            <div class="stat-value-large" id="discord-python-count">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon stat-icon-purple">⚙️</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Config Files</div>
+                            <div class="stat-value-large" id="discord-config-count">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bot Management Section -->
+                <div class="project-section">
+                    <div class="project-header">
+                        <div class="project-title-group">
+                            <span class="project-icon">🤖</span>
+                            <div>
+                                <h2 class="project-title">Discord Bot Files</h2>
+                                <p style="color: rgba(255,255,255,0.6); font-size: 0.875rem; margin-top: 0.25rem;">
+                                    ✅ Edit bot files here. Changes sync to GitHub → Render auto-deploys → Bot restarts with new code.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn btn-blue" onclick="importDiscordBotFiles()">📥 IMPORT FILES</button>
+                            <button class="btn btn-green" onclick="syncDiscordBotToGitHub()">🔄 SYNC TO GITHUB</button>
+                            <button class="btn btn-grey" onclick="restartDiscordBotOnRender()">🔄 RESTART BOT</button>
+                        </div>
+                    </div>
+
+                    <!-- File Browser -->
+                    <div class="discord-files-container" style="margin-top: 1.5rem;">
+                        <div class="table-container">
+                            <table class="scripts-table">
+                                <thead>
+                                    <tr>
+                                        <th>FILE NAME</th>
+                                        <th>TYPE</th>
+                                        <th>SIZE</th>
+                                        <th>LAST MODIFIED</th>
+                                        <th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="discord-files-list">
+                                    <tr>
+                                        <td colspan="5" class="empty-table-message">No bot files loaded. Click "IMPORT FILES" to load your Discord bot files.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Site Tab Content -->
+            <div id="custom-site-content" class="tab-content">
+                <!-- Stats Cards -->
+                <div class="stats-container">
+                    <div class="stat-card stat-card-green">
+                        <div class="stat-icon stat-icon-green">👁️</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Views</div>
+                            <div class="stat-value-large" id="profile-total-views">0</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-green" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-blue">
+                        <div class="stat-icon stat-icon-blue">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Today's Views</div>
+                            <div class="stat-value-large" id="profile-today-views">0</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-blue" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon stat-icon-purple">🔗</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Social Links</div>
+                            <div class="stat-value-large" id="profile-social-count">0</div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar stat-progress-purple" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Management Section -->
+                <div class="project-section">
+                    <div class="project-header">
+                        <div class="project-title-group">
+                            <span class="project-icon">🌐</span>
+                            <div>
+                                <h2 class="project-title">Profile Website Management</h2>
+                                <p style="color: rgba(255,255,255,0.6); font-size: 0.875rem; margin-top: 0.25rem;">
+                                    Manage your profile at <a href="https://profile.42-53.com" target="_blank" style="color: var(--blue);">profile.42-53.com</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn btn-blue" onclick="openEditProfileModal()">✏️ EDIT PROFILE</button>
+                            <button class="btn btn-green" onclick="openAddSocialModal()">➕ ADD SOCIAL</button>
+                            <a href="custom-site.html" target="_blank" class="btn btn-grey">🔗 VIEW PROFILE</a>
+                        </div>
+                    </div>
+
+                    <!-- Profile Settings -->
+                    <div style="background: var(--bg-card-dark); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-white);">Profile Information</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.875rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Username</label>
+                                <input type="text" id="profile-username-input" class="modern-input" placeholder="4253" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.875rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Bio/Description</label>
+                                <input type="text" id="profile-bio-input" class="modern-input" placeholder="Python/Lua Developer" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.875rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Location</label>
+                                <input type="text" id="profile-location-input" class="modern-input" placeholder="nuh uh" style="width: 100%;">
+                            </div>
+                        </div>
+                        <button class="btn btn-blue" onclick="saveProfileInfo()" style="margin-top: 1rem;">💾 SAVE PROFILE INFO</button>
+                    </div>
+
+                    <!-- Social Links List -->
+                    <div style="background: var(--bg-card-dark); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-white);">Social Links</h3>
+                        <div id="social-links-list" style="display: grid; gap: 1rem;">
+                            <!-- Social links will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- View Analytics -->
+                    <div style="background: var(--bg-card-dark); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-white);">View Analytics</h3>
+                        <div id="view-analytics" style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">
+                            Loading analytics...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab Content -->
+            <div id="profile-content" class="tab-content">
+                <div class="profile-container">
+                    <!-- Left Section -->
+                    <div class="profile-left">
+                        <!-- Profile Header -->
+                        <div class="profile-header-section">
+                            <div class="profile-picture">👤</div>
+                            <div class="profile-header-info">
+                                <div class="profile-discord-label">Discord:</div>
+                                <div class="profile-discord-id">561293567780192273</div>
+                            </div>
+                        </div>
+
+                        <!-- Details Section -->
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">Details</h3>
+                            <div class="profile-detail-item">
+                                <span class="detail-label">Registered At:</span>
+                                <span class="detail-value">12 Jan 2026</span>
+                            </div>
+                            <div class="profile-detail-item">
+                                <span class="detail-label">Ends At:</span>
+                                <span class="detail-value">Never</span>
+                            </div>
+                            <div class="profile-detail-item">
+                                <span class="detail-label">Discord ID:</span>
+                                <span class="detail-value">561293567780192273</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="profile-right">
+                        <!-- Security Settings -->
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">Security Settings</h3>
+                            <div class="security-section">
+                                <div class="security-info">
+                                    <div class="security-info-item">
+                                        <span class="info-label">Discord ID:</span>
+                                        <span class="info-value" id="display-discord-id">561293567780192273</span>
+                                    </div>
+                                    <div class="security-info-item">
+                                        <span class="info-label">Security Key:</span>
+                                        <span class="info-value security-key-display" id="display-security-key">••••••••••••••••</span>
+                                        <button class="btn btn-grey btn-show-key" onclick="toggleKeyVisibility()" style="padding: 0.375rem 0.75rem; font-size: 0.75rem; margin-left: 0.5rem;">SHOW</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-blue btn-reset-key" onclick="openResetKeyModal()" style="width: 100%; margin-top: 1rem;">🔑 RESET SECURITY KEY</button>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Save Backup -->
+                        <div class="profile-section auto-save-section auto-save-stretched">
+                            <div class="auto-save-card">
+                                <div class="auto-save-icon">💾</div>
+                                <div class="auto-save-content">
+                                    <h3 class="auto-save-title">Auto-Save Backup</h3>
+                                    <div class="auto-save-status" id="auto-save-status">Enabled</div>
+                                    <div class="auto-save-info">
+                                        <div class="auto-save-info-item">
+                                            <span class="info-label">Last Backup:</span>
+                                            <span class="info-value" id="last-backup-time">Never</span>
+                                        </div>
+                                        <div class="auto-save-info-item">
+                                            <span class="info-label">Files Saved:</span>
+                                            <span class="info-value" id="files-saved-count">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="auto-save-actions">
+                                        <button class="btn btn-grey btn-manual-backup" onclick="triggerManualBackup()">💾 BACKUP NOW</button>
+                                        <button class="btn btn-grey btn-view-backups" onclick="openBackupsModal()">📂 VIEW BACKUPS</button>
+                                        <button class="btn btn-grey btn-toggle-auto-save" onclick="toggleAutoSave()" id="toggle-auto-save-btn">⏸️ DISABLE</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Loader Server Settings -->
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">Loader Server</h3>
+                            <div class="security-section">
+                                <div class="modern-form-group" style="margin-bottom: 1rem;">
+                                    <label for="loader-server-url" class="modern-label">
+                                        <span class="label-icon">🌐</span>
+                                        <span>Loader Server URL</span>
+                                    </label>
+                                    <input type="text" id="loader-server-url" class="modern-input" placeholder="https://your-app.vercel.app/api/loaders" value="">
+                                    <div class="modern-form-description">Enter your Vercel server URL where loader API is deployed</div>
+                                </div>
+                                <button class="btn btn-blue" onclick="saveLoaderServerUrl()" style="width: 100%; margin-bottom: 0.75rem;">💾 SAVE SERVER URL</button>
+                                <div id="loader-server-status" style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255,255,255,0.6);"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Scripts Sync Section -->
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">Scripts Sync</h3>
+                            <div class="security-section">
+                                <div class="modern-form-group" style="margin-bottom: 1rem;">
+                                    <p style="color: rgba(255,255,255,0.7); font-size: 0.875rem; margin-bottom: 1rem;">
+                                        Sync projects with <a href="https://scripts.42-53.com" target="_blank" style="color: var(--blue);">scripts.42-53.com</a><br>
+                                        <small style="color: rgba(255,255,255,0.5);">Projects automatically sync to GitHub. Import scripts from GitHub to add them here.</small><br>
+                                        <small style="color: rgba(255,255,255,0.5); margin-top: 0.5rem; display: block;">
+                                            <strong>Protected Access:</strong> Use <code style="background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 3px;">/api/scripts/filename.lua?script_key=xxx</code> to block browsers. Direct GitHub links are public.
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="modern-form-group" style="margin-bottom: 0.75rem;">
+                                    <label for="github-owner" class="modern-label">
+                                        <span class="label-icon">👤</span>
+                                        <span>GitHub Username</span>
+                                    </label>
+                                    <input type="text" id="github-owner" class="modern-input" placeholder="pyd3ad-hub">
+                                    <div class="modern-form-description">Your GitHub username</div>
+                                </div>
+                                <div class="modern-form-group" style="margin-bottom: 0.75rem;">
+                                    <label for="github-repo" class="modern-label">
+                                        <span class="label-icon">📁</span>
+                                        <span>Repository Name</span>
+                                    </label>
+                                    <input type="text" id="github-repo" class="modern-input" placeholder="scripts-42-53">
+                                    <div class="modern-form-description">Name of your scripts repository</div>
+                                </div>
+                                <div class="modern-form-group" style="margin-bottom: 0.75rem;">
+                                    <label for="github-token" class="modern-label">
+                                        <span class="label-icon">🔑</span>
+                                        <span>GitHub Personal Access Token</span>
+                                    </label>
+                                    <input type="password" id="github-token" class="modern-input" placeholder="ghp_xxxxxxxxxxxx">
+                                    <div class="modern-form-description">Create at: <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--blue);">github.com/settings/tokens</a> (needs repo permissions)</div>
+                                </div>
+                                <button class="btn btn-blue" onclick="saveGitHubConfigUI()" style="width: 100%; margin-bottom: 0.75rem;">💾 SAVE CONFIG</button>
+                                <button class="btn btn-green" onclick="importScriptsFromGitHub()" style="width: 100%; margin-bottom: 0.75rem;">📥 IMPORT FROM GITHUB</button>
+                                <div id="github-sync-status" style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255,255,255,0.6);"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cloud Sync Section -->
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">Cloud Sync</h3>
+                            <div class="security-section">
+                                <div class="modern-form-group" style="margin-bottom: 1rem;">
+                                    <p style="color: rgba(255,255,255,0.7); font-size: 0.875rem; margin-bottom: 1rem;">
+                                        <span id="cloud-sync-status">⚙️ Automatic sync ready</span><br>
+                                        <small style="color: rgba(255,255,255,0.5);">Your data automatically syncs across all devices when configured.</small>
+                                    </p>
+                                </div>
+                                <div class="auto-save-actions">
+                                    <button class="btn btn-blue" onclick="manualCloudSync()" style="width: 100%; margin-bottom: 0.75rem;">🔄 SYNC NOW</button>
+                                    <button class="btn btn-grey" onclick="exportData()" style="width: 100%; margin-bottom: 0.75rem;">📥 EXPORT BACKUP</button>
+                                    <button class="btn btn-grey" onclick="document.getElementById('import-file-input').click()" style="width: 100%;">📤 IMPORT BACKUP</button>
+                                    <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importData(event)">
+                                </div>
+                                <div id="sync-status" style="margin-top: 0.75rem; font-size: 0.875rem; color: rgba(255,255,255,0.6);"></div>
+                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="create-project-modal" class="modal">
+        <div class="modal-content create-project-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Project</h2>
+                <div class="modal-header-buttons">
+                    <button type="button" class="btn-modal btn-modal-green" onclick="document.querySelector('.create-project-form').requestSubmit()">
+                        <span>✓</span>
+                    </button>
+                    <button type="button" class="btn-modal btn-modal-red" onclick="closeCreateProjectModal()">
+                        <span>✕</span>
+                    </button>
+                </div>
+            </div>
+            <form class="create-project-form" onsubmit="handleCreateProject(event)">
+                <div class="form-group">
+                    <label for="project-name">Project Name</label>
+                    <input type="text" id="project-name" name="project-name" placeholder="Enter project name" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="logs-webhook">Logs Webhook</label>
+                            <input type="text" id="logs-webhook" name="logs-webhook" placeholder="Enter webhook URL">
+                            <div class="form-description">*Successful executions will be sent to this webhook</div>
+                        </div>
+                        
+                        <div class="form-group toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="allow-hwid-reset" class="toggle-input">
+                                <span class="toggle-slider-modal"></span>
+                                <span class="toggle-text">Allow HWID reset</span>
+                            </label>
+                            <div class="form-description">*When enabled, users can reset HWIDs.</div>
+                        </div>
+                        
+                        <div class="form-group toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="auto-delete-expired" class="toggle-input">
+                                <span class="toggle-slider-modal"></span>
+                                <span class="toggle-text">Auto delete expired users</span>
+                            </label>
+                            <div class="form-description">*When enabled, expired users will be automatically deleted every 15 minutes.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="alert-webhook">Alert Webhook</label>
+                            <input type="text" id="alert-webhook" name="alert-webhook" placeholder="Enter webhook URL">
+                            <div class="form-description">*Crack attempts and bans will be reported to this webhook</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cooldown">Cooldown</label>
+                            <input type="text" id="cooldown" name="cooldown" placeholder="Enter days">
+                            <div class="form-description">*Number of days user will need to wait before resetting HWID.</div>
+                        </div>
+                        
+                        <div class="form-group toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="allow-hwid-cloned" class="toggle-input">
+                                <span class="toggle-slider-modal"></span>
+                                <span class="toggle-text">Allow HWID cloned key sharing</span>
+                            </label>
+                            <div class="form-description">*When enabled, people can use one key on different computers with same HWID (Only useful for server hopping scripts with multi instance on VPSes).</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-green btn-file-inject" onclick="document.getElementById('file-input').click()">
+                        📎 INJECT FILE
+                    </button>
+                    <input type="file" id="file-input" accept=".lua" style="display: none;">
+                    <div id="file-name" class="file-name-display"></div>
+                    <button type="submit" class="btn-modal btn-modal-green btn-create-submit">
+                        <span>✓</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal">
+        <div class="modal-content add-user-modal-content modern-modal">
+            <div class="modal-header modern-modal-header">
+                <div class="modal-title-wrapper">
+                    <div class="modal-icon">👤</div>
+                    <h2 class="modal-title">Add New User</h2>
+                </div>
+                <div class="modal-header-buttons">
+                    <button type="button" class="btn-modal btn-modal-green" onclick="document.querySelector('.add-user-form').requestSubmit()">
+                        <span>✓</span>
+                    </button>
+                    <button type="button" class="btn-modal btn-modal-red" onclick="closeAddUserModal()">
+                        <span>✕</span>
+                    </button>
+                </div>
+            </div>
+            <div class="add-user-instruction modern-instruction">
+                <div class="instruction-icon-wrapper">
+                    <span class="instruction-icon">💡</span>
+                </div>
+                <div class="instruction-content">
+                    <p class="instruction-title">Quick Start</p>
+                    <p class="instruction-text">Leave all fields empty to create an unused key. The key can be added to scripts like: <code>script_key="key here";</code></p>
+                </div>
+            </div>
+            <form class="add-user-form modern-form" onsubmit="handleAddUser(event)">
+                <div class="modern-form-grid">
+                    <div class="modern-form-group">
+                        <label for="user-note" class="modern-label">
+                            <span class="label-icon">📝</span>
+                            <span>User Note</span>
+                        </label>
+                        <input type="text" id="user-note" name="user-note" class="modern-input" placeholder="Enter a reminder note...">
+                        <div class="modern-form-description">Optional reminder note for this user</div>
+                    </div>
+                    
+                    <div class="modern-form-group">
+                        <label for="discord-id" class="modern-label">
+                            <span class="label-icon">💬</span>
+                            <span>Discord ID</span>
+                        </label>
+                        <input type="text" id="discord-id" name="discord-id" class="modern-input" placeholder="Enter Discord ID...">
+                        <div class="modern-form-description">Required for /resethwid command. Users can also link via /redeem [code]</div>
+                    </div>
+                    
+                    <div class="modern-form-group">
+                        <label for="identifier" class="modern-label">
+                            <span class="label-icon">🔐</span>
+                            <span>HWID Identifier</span>
+                        </label>
+                        <input type="text" id="identifier" name="identifier" class="modern-input" placeholder="Enter HWID...">
+                        <div class="modern-form-description">HWID will be auto-assigned on first execution if left empty</div>
+                    </div>
+                    
+                    <div class="modern-form-group">
+                        <label for="days" class="modern-label">
+                            <span class="label-icon">⏰</span>
+                            <span>Subscription Days</span>
+                        </label>
+                        <input type="text" id="days" name="days" class="modern-input" placeholder="Enter days (leave empty for infinite)">
+                        <div class="modern-form-description">Days start counting after key redemption. Leave blank for unlimited access</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+                </div>
+                
+    <!-- Backups Modal -->
+    <div id="backups-modal" class="modal">
+        <div class="modal-content add-user-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Backup History</h2>
+                <div class="modal-header-buttons">
+                    <button type="button" class="btn-modal btn-modal-red" onclick="closeBackupsModal()">
+                        <span>✕</span>
+                    </button>
+                </div>
+            </div>
+            <div class="backups-content" id="backups-content" style="padding: 2rem; max-height: 600px; overflow-y: auto;">
+                <div class="empty-state">
+                    <div class="empty-icon">📂</div>
+                    <h2>No Backups Yet</h2>
+                    <p>Backups will appear here after you create them</p>
+                </div>
+            </div>
+        </div>
+                </div>
+                
+    <!-- Reset Key Modal -->
+    <div id="reset-key-modal" class="modal">
+        <div class="modal-content add-user-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Reset Security Key</h2>
+                <div class="modal-header-buttons">
+                    <button type="button" class="btn-modal btn-modal-red" onclick="closeResetKeyModal()">
+                        <span>✕</span>
+                    </button>
+                </div>
+            </div>
+            <div class="add-user-instruction modern-instruction" style="margin: 1.5rem 2rem;">
+                <div class="instruction-icon-wrapper">
+                    <span class="instruction-icon">⚠️</span>
+                </div>
+                <div class="instruction-content">
+                    <p class="instruction-title">Warning</p>
+                    <p class="instruction-text">Resetting your security key will generate a new key. You'll need to use the new key to log in next time. Make sure to save it!</p>
+                </div>
+            </div>
+            <form class="add-user-form modern-form" onsubmit="handleResetKey(event)" style="padding: 0 2rem 2rem 2rem;">
+                <div class="modern-form-group">
+                    <label for="security-code" class="modern-label">
+                        <span class="label-icon">🔐</span>
+                        <span>Security Code</span>
+                    </label>
+                    <input type="text" id="security-code" class="modern-input" placeholder="Enter security code" required>
+                    <div class="modern-form-description">Enter the required security code to proceed</div>
+                </div>
+                <div class="modern-form-group">
+                    <label for="current-key" class="modern-label">
+                        <span class="label-icon">🔑</span>
+                        <span>Current Security Key</span>
+                    </label>
+                    <input type="password" id="current-key" class="modern-input" placeholder="Enter your current security key" required>
+                    <div class="modern-form-description">Enter your current key to confirm</div>
+                </div>
+                <div class="modal-footer" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button type="button" class="btn btn-grey" onclick="closeResetKeyModal()" style="padding: 0.75rem 1.5rem;">CANCEL</button>
+                    <button type="submit" class="btn btn-blue" style="padding: 0.75rem 1.5rem;">RESET KEY</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Discord Bot File Editor Modal -->
+    <div id="discord-file-editor-modal" class="modal">
+        <div class="modal-content add-user-modal-content" style="max-width: 90vw; width: 90vw; max-height: 90vh;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="discord-file-editor-title">Edit File</h2>
+                <div class="modal-header-buttons">
+                    <button type="button" class="btn-modal btn-modal-green" onclick="saveDiscordFile()">
+                        <span>💾</span>
+                    </button>
+                    <button type="button" class="btn-modal btn-red" onclick="closeDiscordFileEditor()">
+                        <span>✕</span>
+                    </button>
+                </div>
+            </div>
+            <div style="padding: 1.5rem 2rem;">
+                <textarea id="discord-file-editor-content" 
+                    style="width: 100%; height: 60vh; background: rgba(0,0,0,0.3); 
+                           color: #fff; border: 1px solid rgba(255,255,255,0.1); 
+                           padding: 1rem; font-family: 'Courier New', monospace; 
+                           font-size: 0.875rem; resize: vertical; 
+                           border-radius: 8px; outline: none;" 
+                    spellcheck="false"></textarea>
+                <div class="modal-footer" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button type="button" class="btn btn-grey" onclick="closeDiscordFileEditor()" style="padding: 0.75rem 1.5rem;">CANCEL</button>
+                    <button type="button" class="btn btn-blue" onclick="saveDiscordFile()" style="padding: 0.75rem 1.5rem;">💾 SAVE FILE</button>
+                    <button type="button" class="btn btn-green" onclick="saveAndSyncDiscordFile()" style="padding: 0.75rem 1.5rem;">💾 SAVE & SYNC TO GITHUB</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for importing Discord bot files -->
+    <input type="file" id="discord-bot-files-input" multiple webkitdirectory directory style="display: none;" onchange="handleDiscordFilesImport(event)">
+
+    <script src="script.js"></script>
 </body>
 </html>
