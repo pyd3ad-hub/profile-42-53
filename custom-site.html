@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>42-53 | Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        /* Profile Card - Main */
+        .profile-card {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+        
+        .profile-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .profile-username {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(45deg, #fff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .profile-bio {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.4rem;
+        }
+        
+        .profile-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+        
+        .stat-item .icon {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Account Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .overview-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 1.2rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+        }
+        
+        .overview-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .overview-card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .overview-card-icon {
+            font-size: 1.5rem;
+            opacity: 0.8;
+        }
+        
+        .overview-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .overview-card-description {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Account Statistics */
+        .stats-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress-bar-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .alert-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .alert-text {
+            flex: 1;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .action-btn.completed {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .action-btn-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Manage Account Section */
+        .manage-section {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .section-description {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Connections Section */
+        .connections-section {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .connection-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .connection-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .connection-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #5865F2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .connection-name {
+            font-weight: 500;
+        }
+        
+        .connection-status {
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .disconnect-btn {
+            padding: 0.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 6px;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .disconnect-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        /* Custom Content Area */
+        #custom-content {
+            margin-top: 2rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .profile-card {
+                padding: 1.5rem;
+            }
+            
+            .profile-username {
+                font-size: 2rem;
+            }
+            
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Social Links */
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .social-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .social-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .social-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.2rem;
+        }
+        
+        .social-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">42</div>
+                <div class="profile-info">
+                    <div class="profile-username" id="profile-username">4253</div>
+                    <div class="profile-bio" id="profile-bio">Python/Lua Developer</div>
+                    <div class="profile-location">
+                        <span>📍</span>
+                        <span id="profile-location">nuh uh</span>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="icon">👁️</span>
+                            <span id="profile-views">0</span> views
+                        </div>
+                        <div class="stat-item">
+                            <span class="icon">👤</span>
+                            <span id="profile-uid">1</span> UID
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Overview -->
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="overview-card-header">
+                    <div class="overview-card-title">Username</div>
+                    <div class="overview-card-icon">✏️</div>
+                </div>
+                            <div class="overview-card-value" id="overview-username-display">4253</div>
+                            <div class="overview-card-description">Change available now</div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-card-header">
+                    <div class="overview-card-title">Alias</div>
+                    <div class="overview-card-icon">👤</div>
+                </div>
+                <div class="overview-card-value">Unavailable</div>
+                <div class="overview-card-description">Premium Only</div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-card-header">
+                    <div class="overview-card-title">UID</div>
+                    <div class="overview-card-icon">#</div>
+                </div>
+                    <div class="overview-card-value" id="overview-uid">1</div>
+                    <div class="overview-card-description">Among the first 1%</div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-card-header">
+                    <div class="overview-card-title">Profile Views</div>
+                    <div class="overview-card-icon">👁️</div>
+                </div>
+                    <div class="overview-card-value" id="overview-views">0</div>
+                    <div class="overview-card-description" id="overview-views-desc">No views yet</div>
+            </div>
+        </div>
+        
+        <!-- Account Statistics -->
+        <div class="stats-section">
+            <div class="stats-title">Account Statistics</div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-label">
+                    <span>Profile Completion</span>
+                    <span>60%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%"></div>
+                </div>
+            </div>
+            
+            <div class="alert-box">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-text">Your profile isn't complete yet! Complete your profile to make it more discoverable and appealing.</div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="#" class="action-btn">
+                    <span>Upload An Avatar</span>
+                    <span class="action-btn-icon">→</span>
+                </a>
+                <a href="#" class="action-btn completed">
+                    <span>Add A Description</span>
+                    <span class="action-btn-icon">✓</span>
+                </a>
+                <a href="#" class="action-btn completed">
+                    <span>Link Discord Account</span>
+                    <span class="action-btn-icon">✓</span>
+                </a>
+                <a href="#" class="action-btn completed">
+                    <span>Add Socials</span>
+                    <span class="action-btn-icon">✓</span>
+                </a>
+                <a href="#" class="action-btn">
+                    <span>Enable 2FA</span>
+                    <span class="action-btn-icon">→</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Manage Account -->
+        <div class="manage-section">
+            <div class="section-title">Manage your account</div>
+            <div class="section-description">Change your email, username and more.</div>
+            <div class="button-group">
+                <button class="btn">✏️ Change Username</button>
+                <button class="btn">💬 Change Display Name</button>
+                <button class="btn btn-primary">💎 Want more? Unlock with Premium</button>
+                <button class="btn">⚙️ Account Settings</button>
+            </div>
+        </div>
+        
+        <!-- Connections -->
+        <div class="connections-section">
+            <div class="section-title">Connections</div>
+            <div class="section-description">Link your Discord account to 42-53</div>
+            <div class="connection-item">
+                <div class="connection-info">
+                    <div class="connection-logo">D</div>
+                    <div class="connection-name">Discord Connected</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="connection-status">Connected</span>
+                    <button class="disconnect-btn">✕</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Social Links Section -->
+        <div class="stats-section" id="social-links-section" style="display: none;">
+            <div class="stats-title">Social Links</div>
+            <div id="social-links-container" style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <!-- Social links will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Custom Content Area (loaded from Firebase) -->
+        <div id="custom-content" class="loading">Loading custom content...</div>
+    </div>
+    
+    <!-- Firebase SDK with fallback -->
+    <script type="module">
+        // Try to load Firebase with error handling
+        let firebaseLoaded = false;
+        
+        // Track view
+        async function trackView(db, doc, getDoc, setDoc) {
+            try {
+                const viewRef = doc(db, 'config', 'profileViews');
+                const viewSnap = await getDoc(viewRef);
+                
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+                
+                let viewsData = viewSnap.exists() ? viewSnap.data() : { total: 0, today: 0, lastView: null, history: {} };
+                
+                // Update totals
+                viewsData.total = (viewsData.total || 0) + 1;
+                viewsData.today = (viewsData.history && viewsData.history[today]) ? viewsData.history[today] + 1 : 1;
+                viewsData.lastView = now.toISOString();
+                if (!viewsData.history) viewsData.history = {};
+                viewsData.history[today] = viewsData.today;
+                
+                await setDoc(viewRef, viewsData);
+                
+                // Update UI
+                updateViewCounts(viewsData);
+            } catch (error) {
+                console.error('Error tracking view:', error);
+            }
+        }
+        
+        // Update view counts in UI
+        function updateViewCounts(viewsData) {
+            const totalViews = viewsData.total || 0;
+            const todayViews = viewsData.today || 0;
+            
+            // Update all view displays
+            const viewElements = document.querySelectorAll('#profile-views, #overview-views');
+            viewElements.forEach(el => {
+                if (el) el.textContent = totalViews;
+            });
+            
+            const overviewDesc = document.getElementById('overview-views-desc');
+            if (overviewDesc) {
+                if (todayViews > 0) {
+                    overviewDesc.textContent = `+${todayViews} views today`;
+                } else {
+                    overviewDesc.textContent = 'No views yet';
+                }
+            }
+        }
+        
+        // Load profile data
+        async function loadProfileData(db, doc, getDoc) {
+            try {
+                const profileRef = doc(db, 'config', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                if (profileSnap.exists()) {
+                    const data = profileSnap.data();
+                    
+                    // Update profile info
+                    if (data.username) {
+                        const usernameEl = document.getElementById('profile-username');
+                        const usernameDisplayEl = document.getElementById('overview-username-display');
+                        if (usernameEl) usernameEl.textContent = data.username;
+                        if (usernameDisplayEl) usernameDisplayEl.textContent = data.username;
+                    }
+                    if (data.bio) {
+                        const bioEl = document.getElementById('profile-bio');
+                        if (bioEl) bioEl.textContent = data.bio;
+                    }
+                    if (data.location) {
+                        const locationEl = document.getElementById('profile-location');
+                        if (locationEl) locationEl.textContent = data.location;
+                    }
+                    
+                    // Load social links
+                    if (data.socialLinks && Array.isArray(data.socialLinks) && data.socialLinks.length > 0) {
+                        loadSocialLinks(data.socialLinks);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+            }
+        }
+        
+        // Load social links
+        function loadSocialLinks(socialLinks) {
+            const container = document.getElementById('social-links-container');
+            const section = document.getElementById('social-links-section');
+            
+            if (!container || !section) return;
+            
+            if (socialLinks.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            container.innerHTML = '';
+            
+            socialLinks.forEach(link => {
+                const socialEl = document.createElement('a');
+                socialEl.href = link.url;
+                socialEl.target = '_blank';
+                socialEl.className = 'social-link';
+                
+                const icon = document.createElement('div');
+                icon.className = 'social-icon';
+                icon.style.background = link.iconColor || '#667eea';
+                icon.textContent = link.icon || '🔗';
+                
+                const info = document.createElement('div');
+                info.className = 'social-info';
+                
+                const label = document.createElement('div');
+                label.className = 'social-label';
+                label.textContent = link.label || '';
+                
+                const text = document.createElement('div');
+                text.className = 'social-text';
+                text.textContent = link.text || link.url;
+                
+                info.appendChild(label);
+                info.appendChild(text);
+                socialEl.appendChild(icon);
+                socialEl.appendChild(info);
+                container.appendChild(socialEl);
+            });
+        }
+        
+        // Load view counts
+        async function loadViewCounts(db, doc, getDoc) {
+            try {
+                const viewRef = doc(db, 'config', 'profileViews');
+                const viewSnap = await getDoc(viewRef);
+                
+                if (viewSnap.exists()) {
+                    const viewsData = viewSnap.data();
+                    updateViewCounts(viewsData);
+                }
+            } catch (error) {
+                console.error('Error loading view counts:', error);
+            }
+        }
+        
+        async function initFirebase() {
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+                const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBeO9xz5edZLngDE2G98WyJnxw_e9MKRTQ",
+                    authDomain: "shub-a0d91.firebaseapp.com",
+                    projectId: "shub-a0d91",
+                    storageBucket: "shub-a0d91.firebasestorage.app",
+                    messagingSenderId: "620094592442",
+                    appId: "1:620094592442:web:69e9854f0c3a1983a37983"
+                };
+                
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                
+                // Import setDoc for tracking
+                const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                firebaseLoaded = true;
+                
+                // Track this view
+                await trackView(db, doc, getDoc, setDoc);
+                
+                // Load profile data and view counts
+                await Promise.all([
+                    loadProfileData(db, doc, getDoc),
+                    loadViewCounts(db, doc, getDoc),
+                    loadCustomContent(db, doc, getDoc)
+                ]);
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                showError('Failed to initialize Firebase. Please refresh the page.');
+            }
+        }
+        
+        async function loadCustomContent(db, doc, getDoc) {
+            try {
+                const customContentEl = document.getElementById('custom-content');
+                
+                const docRef = doc(db, 'config', 'customSite');
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.html) {
+                        customContentEl.innerHTML = data.html;
+                        customContentEl.classList.remove('loading');
+                    } else {
+                        customContentEl.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">No custom content set. Edit from the dashboard to add content.</p>';
+                        customContentEl.classList.remove('loading');
+                    }
+                } else {
+                    customContentEl.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">No custom content set. Edit from the dashboard to add content.</p>';
+                    customContentEl.classList.remove('loading');
+                }
+            } catch (error) {
+                console.error('Error loading custom content:', error);
+                showError('Error loading content. Please try again later.');
+            }
+        }
+        
+        function showError(message) {
+            const customContentEl = document.getElementById('custom-content');
+            customContentEl.innerHTML = `<p style="text-align: center; color: rgba(255,255,255,0.5);">${message}</p>`;
+            customContentEl.classList.remove('loading');
+        }
+        
+        // Initialize Firebase on page load
+        initFirebase();
+    </script>
+    
+    <!-- Fallback for browsers that don't support ES modules -->
+    <script nomodule>
+        document.getElementById('custom-content').innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Please use a modern browser to view this page.</p>';
+    </script>
+</body>
+</html>
