@@ -3,72 +3,742 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4253 - Profile</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Glassmorphic Cosmos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Shooting stars container */
+        #shooting-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Fixed Sidebar */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            z-index: 100;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateX(-250px);
+        }
+        
+        #sidebar:hover {
+            transform: translateX(0);
+        }
+        
+        /* Ultra-transparent handle */
+        #sidebar-handle {
+            position: absolute;
+            top: 30px;
+            left: 250px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(15px);
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-left: none;
+            z-index: 101;
+        }
+        
+        #sidebar:hover #sidebar-handle {
+            background: rgba(255, 255, 255, 0.08);
+            left: 280px;
+        }
+        
+        .handle-line {
+            width: 16px;
+            height: 1.5px;
+            background-color: rgba(255, 255, 255, 0.6);
+            margin: 2.5px 0;
+            border-radius: 1px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar:hover .handle-line {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scaleX(1.1);
+        }
+        
+        /* Glass Tab Container */
+        .tabs-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(30px);
+            border-radius: 0 24px 24px 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: none;
+            padding: 100px 25px 25px 25px;
+            width: 280px;
+            height: 100vh;
+            box-shadow: 
+                8px 0 32px rgba(0, 0, 0, 0.4),
+                inset 1px 0 0 rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transition: opacity 0.3s 0.1s;
+            overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        #sidebar:hover .tabs-container {
+            opacity: 1;
+        }
+        
+        /* Individual Glass Tabs with specific icons */
+        .tab {
+            padding: 22px 20px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Tab-specific hover colors */
+        #tab1:hover {
+            border-color: rgba(74, 158, 255, 0.3);
+        }
+        
+        #tab2:hover {
+            border-color: rgba(138, 43, 226, 0.3);
+        }
+        
+        #tab3:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Animated glow effect on hover */
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.08), 
+                transparent);
+            transition: left 0.7s;
+        }
+        
+        .tab:hover::before {
+            left: 100%;
+        }
+        
+        /* Tab icon */
+        .tab-icon {
+            font-size: 16px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            transition: all 0.4s;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        
+        /* Specific icon colors for each tab */
+        #tab1 .tab-icon {
+            color: rgba(74, 158, 255, 0.8);
+        }
+        
+        #tab2 .tab-icon {
+            color: rgba(138, 43, 226, 0.8);
+        }
+        
+        /* Extra tab color - white */
+        #tab3 .tab-icon {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .tab:hover .tab-icon {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: rotate(10deg) scale(1.1);
+        }
+        
+        /* Extra tab hover effect - white glow */
+        #tab3:hover .tab-icon {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+        
+        /* Tab content */
+        .tab-content {
+            flex-grow: 1;
+        }
+        
+        .tab-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.3px;
+            transition: all 0.3s;
+            margin-bottom: 4px;
+        }
+        
+        .tab:hover .tab-name {
+            color: #fff;
+        }
+        
+        .tab-type {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover .tab-type {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Extra tab text color - white */
+        #tab3 .tab-type {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        #tab3:hover .tab-type {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Arrow icon */
+        .tab-arrow {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s;
+            opacity: 0;
+            transform: translateX(-5px);
+        }
+        
+        .tab:hover .tab-arrow {
+            color: rgba(255, 255, 255, 0.8);
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Extra tab arrow - white */
+        #tab3:hover .tab-arrow {
+            color: #fff;
+        }
+        
+        /* Subtle separator between tabs */
+        .tab:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        /* Welcome Card - Top Middle of Screen */
+        #welcome-card {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 25px 30px;
+            width: 450px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s ease;
+            opacity: 0.95;
+        }
+        
+        #welcome-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(74, 158, 255, 0.1);
+            transform: translateX(-50%) translateY(-2px);
+        }
+        
+        /* Circle Icon with Blue Ring - Centered */
+        .circle-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            margin-bottom: 20px;
+        }
+        
+        .circle-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            transition: all 0.4s ease;
+        }
+        
+        .circle-icon i {
+            font-size: 28px;
+            color: rgba(74, 158, 255, 0.9);
+            transition: all 0.4s ease;
+            z-index: 1;
+        }
+        
+        /* Blue glow effect on hover */
+        #welcome-card:hover .circle-icon::before {
+            border-color: rgba(74, 158, 255, 0.6);
+            box-shadow: 
+                0 0 25px rgba(74, 158, 255, 0.5),
+                inset 0 0 25px rgba(74, 158, 255, 0.1);
+            transform: scale(1.08);
+        }
+        
+        #welcome-card:hover .circle-icon i {
+            color: #4a9eff;
+            transform: scale(1.15);
+        }
+        
+        /* Welcome Text - Centered Layout */
+        .welcome-text {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+        
+        #welcome-card:hover .welcome-title {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Centered "Enjoy Ur Stay!!!" text */
+        .welcome-subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(74, 158, 255, 0.9);
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            padding: 8px 20px;
+            margin-top: 10px;
+        }
+        
+        /* Animated underline for centered text */
+        .welcome-subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4a9eff, transparent);
+            transition: width 0.5s ease;
+        }
+        
+        #welcome-card:hover .welcome-subtitle {
+            color: #4a9eff;
+            text-shadow: 0 0 15px rgba(74, 158, 255, 0.6);
+            letter-spacing: 1.2px;
+        }
+        
+        #welcome-card:hover .welcome-subtitle::after {
+            width: 80%;
+        }
+        
+        /* Cosmic background glow */
+        .cosmic-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(74, 158, 255, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(138, 43, 226, 0.015) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Floating particles */
+        .floating-particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Hide scrollbar */
+        .tabs-container::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Main Profile Card -->
-        <div class="profile-main-card">
-            <div class="profile-avatar">
-                <img src="https://via.placeholder.com/150/667eea/ffffff?text=4253" alt="Profile Avatar">
+    <!-- Shooting stars background -->
+    <div id="shooting-stars"></div>
+    
+    <!-- Cosmic glow -->
+    <div class="cosmic-glow"></div>
+    
+    <!-- Welcome Card - Top Middle -->
+    <div id="welcome-card">
+        <div class="circle-icon">
+            <i class="fas fa-user-astronaut"></i>
+        </div>
+        <div class="welcome-text">
+            <div class="welcome-title">Hi Welcome To My Website</div>
+            <div class="welcome-subtitle">Enjoy Ur Stay!!!</div>
+        </div>
+    </div>
+    
+    <!-- Fixed Sidebar -->
+    <div id="sidebar">
+        <div id="sidebar-handle">
+            <div class="handle-line"></div>
+            <div class="handle-line"></div>
+            <div class="handle-line"></div>
+        </div>
+        
+        <div class="tabs-container">
+            <div class="tab" id="tab1">
+                <div class="tab-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-name">Info</div>
+                    <div class="tab-type">INFORMATION TAB</div>
+                </div>
+                <div class="tab-arrow"><i class="fas fa-chevron-right"></i></div>
             </div>
-            <div class="profile-info">
-                <h1 class="username"></h1>
-                <p class="role"></p>
-                <div class="bio">
-                    <span class="pin-icon">📍</span>
-                    <span></span>
+            <div class="tab" id="tab2">
+                <div class="tab-icon">
+                    <i class="fas fa-link"></i>
                 </div>
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-icon">👁️</span>
-                        <span></span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">👤</span>
-                        <span></span>
-                    </div>
+                <div class="tab-content">
+                    <div class="tab-name">Links</div>
+                    <div class="tab-type">EXTERNAL LINKS</div>
                 </div>
+                <div class="tab-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <div class="tab" id="tab3">
+                <div class="tab-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-name">Extra</div>
+                    <div class="tab-type">ADDITIONAL FEATURES</div>
+                </div>
+                <div class="tab-arrow"><i class="fas fa-chevron-right"></i></div>
             </div>
         </div>
-
-        <!-- Links Section -->
-        <div class="links-section" id="linksSection"></div>
     </div>
-
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCl34zOxqtvWBvi0vldZxvzDptVVXjMxFU",
-            authDomain: "profile-aebdf.firebaseapp.com",
-            projectId: "profile-aebdf",
-            storageBucket: "profile-aebdf.firebasestorage.app",
-            messagingSenderId: "856930659798",
-            appId: "1:856930659798:web:2efb7f03630a7829bac877"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
-        // Make Firebase available globally
-        window.firebaseApp = app;
-        window.firebaseDb = db;
-        
-        console.log('Firebase initialized:', {
-            db: !!window.firebaseDb
-        });
-        
-        // Dispatch event to notify that Firebase is ready
-        window.dispatchEvent(new CustomEvent('firebaseReady'));
-    </script>
     
-    <script src="script.js"></script>
+    <script>
+        // Enhanced shooting stars with more variation
+        function createShootingStars() {
+            const container = document.getElementById('shooting-stars');
+            const starCount = 35;
+            
+            for (let i = 0; i < starCount; i++) {
+                createStar(container, i);
+            }
+            
+            // Create floating particles
+            createFloatingParticles();
+        }
+        
+        function createStar(container, index) {
+            const star = document.createElement('div');
+            
+            // Random position
+            const startX = Math.random() * 100;
+            const startY = Math.random() * 100;
+            
+            // Random size
+            const size = Math.random() * 1.8 + 0.3;
+            
+            // Create variety in animation
+            const duration = 4 + Math.random() * 6;
+            const delay = Math.random() * 8;
+            
+            // Color variations - added pure white option
+            const colors = [
+                'rgba(255, 255, 255, 0.9)',  // Pure white
+                'rgba(200, 220, 255, 0.8)',
+                'rgba(180, 200, 255, 0.8)',
+                'rgba(255, 255, 255, 0.8)'   // More white
+            ];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            star.style.position = 'absolute';
+            star.style.left = `${startX}vw`;
+            star.style.top = `${startY}vh`;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.backgroundColor = color;
+            star.style.borderRadius = '50%';
+            star.style.boxShadow = `0 0 ${size * 4}px ${size}px ${color.replace('0.8', '0.2').replace('0.9', '0.3')}`;
+            star.style.opacity = '0';
+            star.style.zIndex = '1';
+            
+            // Unique animation for each star
+            const animationNames = ['shootLeft', 'shootRight', 'shootDiagonal'];
+            const animationName = animationNames[index % 3];
+            
+            star.style.animation = `${animationName} ${duration}s ease-in ${delay}s infinite`;
+            
+            container.appendChild(star);
+        }
+        
+        function createFloatingParticles() {
+            const container = document.getElementById('shooting-stars');
+            
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('floating-particle');
+                
+                const size = Math.random() * 40 + 15;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const duration = 25 + Math.random() * 25;
+                const delay = Math.random() * 10;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${x}vw`;
+                particle.style.top = `${y}vh`;
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                particle.style.opacity = Math.random() * 0.03 + 0.005;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Add dynamic CSS for animations
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes shootLeft {
+                0% {
+                    transform: translate(0, 0) scale(0.2);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 0.8;
+                    transform: scale(1);
+                }
+                90% {
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: translate(-300px, 100px) scale(0.1);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes shootRight {
+                0% {
+                    transform: translate(0, 0) scale(0.2);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 0.8;
+                    transform: scale(1);
+                }
+                90% {
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: translate(250px, -150px) scale(0.1);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes shootDiagonal {
+                0% {
+                    transform: translate(0, 0) scale(0.2);
+                    opacity: 0;
+                }
+                15% {
+                    opacity: 0.9;
+                    transform: scale(1.1);
+                }
+                85% {
+                    opacity: 0.9;
+                }
+                100% {
+                    transform: translate(180px, 180px) scale(0.1);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes float {
+                0%, 100% {
+                    transform: translate(0, 0);
+                }
+                33% {
+                    transform: translate(15px, -20px);
+                }
+                66% {
+                    transform: translate(-10px, 15px);
+                }
+            }
+            
+            /* Dynamic starfield background with more white stars */
+            #shooting-stars::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: 
+                    radial-gradient(1.5px 1.5px at 5% 10%, rgba(255, 255, 255, 0.9), transparent),
+                    radial-gradient(1px 1px at 15% 30%, rgba(255, 255, 255, 0.8), transparent),
+                    radial-gradient(2px 2px at 25% 20%, rgba(255, 255, 255, 0.7), transparent),
+                    radial-gradient(1px 1px at 35% 50%, rgba(255, 255, 255, 0.8), transparent),
+                    radial-gradient(1.5px 1.5px at 45% 40%, rgba(255, 255, 255, 0.6), transparent),
+                    radial-gradient(1px 1px at 55% 70%, rgba(255, 255, 255, 0.8), transparent),
+                    radial-gradient(2px 2px at 65% 60%, rgba(255, 255, 255, 0.7), transparent),
+                    radial-gradient(1px 1px at 75% 80%, rgba(255, 255, 255, 0.8), transparent),
+                    radial-gradient(1.5px 1.5px at 85% 90%, rgba(255, 255, 255, 0.6), transparent),
+                    radial-gradient(1px 1px at 95% 15%, rgba(255, 255, 255, 0.8), transparent),
+                    radial-gradient(2px 2px at 10% 85%, rgba(255, 255, 255, 0.7), transparent),
+                    radial-gradient(1px 1px at 30% 95%, rgba(255, 255, 255, 0.8), transparent);
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+                z-index: 0;
+                opacity: 0.5;
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            createShootingStars();
+            
+            // Add interactive effects to tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('mouseenter', function() {
+                    // Different shadow colors for each tab
+                    if (this.id === 'tab1') {
+                        this.style.boxShadow = '0 10px 25px rgba(74, 158, 255, 0.15)';
+                    } else if (this.id === 'tab2') {
+                        this.style.boxShadow = '0 10px 25px rgba(138, 43, 226, 0.15)';
+                    } else if (this.id === 'tab3') {
+                        this.style.boxShadow = '0 10px 25px rgba(255, 255, 255, 0.15)';
+                    }
+                });
+                
+                tab.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '';
+                });
+            });
+            
+            // Add interactive effect to welcome card
+            const welcomeCard = document.getElementById('welcome-card');
+            const circleIcon = welcomeCard.querySelector('.circle-icon');
+            
+            welcomeCard.addEventListener('mouseenter', function() {
+                // Add subtle pulse animation to the circle icon
+                circleIcon.style.animation = 'pulseGlow 2s infinite';
+            });
+            
+            welcomeCard.addEventListener('mouseleave', function() {
+                // Remove pulse animation
+                circleIcon.style.animation = '';
+            });
+            
+            // Ensure sidebar stays fixed within viewport
+            window.addEventListener('resize', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.style.transform = 'translateX(-250px)';
+            });
+            
+            // Add pulse glow animation for the circle icon
+            const pulseStyle = document.createElement('style');
+            pulseStyle.textContent = `
+                @keyframes pulseGlow {
+                    0%, 100% {
+                        box-shadow: 0 0 25px rgba(74, 158, 255, 0.4);
+                    }
+                    50% {
+                        box-shadow: 0 0 35px rgba(74, 158, 255, 0.7);
+                    }
+                }
+            `;
+            document.head.appendChild(pulseStyle);
+        });
+    </script>
 </body>
 </html>
