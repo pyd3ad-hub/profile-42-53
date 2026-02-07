@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4253 - Profile</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Main Profile Card -->
+        <div class="profile-main-card">
+            <div class="profile-avatar">
+                <img src="https://via.placeholder.com/150/667eea/ffffff?text=4253" alt="Profile Avatar">
+            </div>
+            <div class="profile-info">
+                <h1 class="username"></h1>
+                <p class="role"></p>
+                <div class="bio">
+                    <span class="pin-icon">📍</span>
+                    <span></span>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">👁️</span>
+                        <span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">👤</span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links Section -->
+        <div class="links-section" id="linksSection"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Your web app's Firebase configuration
+        // TODO: Replace with your actual Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCl34zOxqtvWBvi0vldZxvzDptVVXjMxFU",
+            authDomain: "profile-aebdf.firebaseapp.com",
+            projectId: "profile-aebdf",
+            storageBucket: "profile-aebdf.firebasestorage.app",
+            messagingSenderId: "856930659798",
+            appId: "1:856930659798:web:2efb7f03630a7829bac877"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        
+        console.log('Firebase initialized:', {
+            db: !!window.firebaseDb
+        });
+        
+        // Dispatch event to notify that Firebase is ready
+        window.dispatchEvent(new CustomEvent('firebaseReady'));
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
